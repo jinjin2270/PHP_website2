@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | Future Blog</title>
+  <link rel="stylesheet" href="../style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+</head>
+<body>
+  <div class="auth-container">
+    <!-- Left Side -->
+    <div class="auth-left">
+      <div class="auth-left-content">
+        <div class="auth-logo">Future</div>
+        <h2>Join Our Community</h2>
+        <p>Create your account to start exploring premium content, connecting with authors, and sharing your own stories.</p>
+
+        <div class="auth-features">
+          <div class="auth-feature"><i class="fas fa-star"></i><span>Access exclusive premium content</span></div>
+          <div class="auth-feature"><i class="fas fa-pen-fancy"></i><span>Publish your own stories</span></div>
+          <div class="auth-feature"><i class="fas fa-heart"></i><span>Save your favorite articles</span></div>
+          <div class="auth-feature"><i class="fas fa-comments"></i><span>Join the conversation</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Side (Form) -->
+    <div class="auth-right">
+      <div class="auth-form-container">
+        <div class="auth-form-header">
+          <h1>Create Account</h1>
+          <p>Already have an account? <a href="login.html">Sign in</a></p>
+        </div>
+
+        <form class="auth-form" id="registerForm" method="POST">
+          <div class="form-group">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" id="name" name="name" class="form-control" placeholder="Enter your full name" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required />
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="Create a password" required />
+            <i class="fas fa-eye password-toggle" id="togglePassword"></i>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" class="form-control" placeholder="Confirm your password" required />
+          </div>
+
+          <div class="form-check">
+            <input type="checkbox" id="terms" class="form-check-input" required />
+            <label for="terms" class="form-check-label">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Create Account</button>
+
+          <div class="divider">or continue with</div>
+          <div class="social-auth">
+            <button type="button" class="social-btn"><i class="fab fa-google" style="color: #DB4437;"></i></button>
+            <button type="button" class="social-btn"><i class="fab fa-facebook-f" style="color: #4267B2;"></i></button>
+            <button type="button" class="social-btn"><i class="fab fa-twitter" style="color: #1DA1F2;"></i></button>
+          </div>
+
+          <div class="auth-footer">By registering, you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a></div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const togglePassword = document.getElementById("togglePassword");
+    const passwordField = document.getElementById("password");
+
+    togglePassword.addEventListener("click", function () {
+      const type = passwordField.getAttribute("type") === "password" ? "text" : "password";
+      passwordField.setAttribute("type", type);
+      this.classList.toggle("fa-eye-slash");
+    });
+
+    function isPasswordStrong(password) {
+      const minLength = 8;
+      const hasUpper = /[A-Z]/.test(password);
+      const hasLower = /[a-z]/.test(password);
+      const hasNumber = /[0-9]/.test(password);
+      const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+      return password.length >= minLength && hasUpper && hasLower && hasNumber && hasSpecial;
+    }
+
+    document.getElementById("registerForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const password = document.getElementById("password").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+
+      if (!isPasswordStrong(password)) {
+        alert("Password must be at least 8 characters long and include uppercase, lowercase, number, and special character.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert("Passwords do not match!");
+        return;
+      }
+
+      if (!document.getElementById("terms").checked) {
+        alert("You must agree to the terms and conditions");
+        return;
+      }
+
+      const formData = new FormData(this);
+
+      fetch("../php/register.php", {
+        method: "POST",
+        body: formData
+      })
+        .then((res) => res.text())
+        .then((data) => {
+          if (data.trim() === "success") {
+            alert("Registration successful! Redirecting...");
+            window.location.href = "login.html";
+          } else {
+            alert(data);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("An error occurred. Please try again.");
+        });
+    });
+
+    document.querySelectorAll(".social-btn").forEach((btn) => {
+      btn.addEventListener("click", function () {
+        const provider = this.querySelector("i").classList.contains("fa-google")
+          ? "Google"
+          : this.querySelector("i").classList.contains("fa-facebook-f")
+          ? "Facebook"
+          : "Twitter";
+        alert(`Redirecting to ${provider} login...`);
+      });
+    });
+  </script>
+</body>
+</html>
